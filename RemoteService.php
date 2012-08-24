@@ -5,11 +5,15 @@ class RemoteService
 
     protected $_session;
 
-    protected $_conf;
+    protected $_conf = array();
 
     protected $_confFile;
 
     protected $_funcs;
+
+    protected $_opts = array();
+
+    protected $_args = array();
 
     public function __construct()
     {
@@ -45,6 +49,14 @@ class RemoteService
         return null;
     }
 
+    public function arg($id)
+    {
+        if (isset($this->_args[$id])) {
+            return $this->_args[$id];
+        }
+        return null;
+    }
+
     public function usage()
     {
         $usage  = "Usage: php " . basename(__FILE__) . " -c <filename> [-l] [<command> [args]]\n";
@@ -76,7 +88,19 @@ USAGE;
 
     protected function parseOpts()
     {
+        global $argv;
+
         $this->_opts = getopt('c:l');
+
+        foreach ($argv as $i => $arg) {
+            if ($i != 0) {
+                if ((substr($arg, 0, 1) == '-' && array_key_exists(substr($arg, 1, 1), $this->_opts))
+                        || in_array($arg, $this->_opts)) {
+                    unset($argv[$i]);
+                }
+            }
+        }
+        $this->_args = array_values($argv);
 
         $conf = isset($this->_opts['c'])
             ? $this->_opts['c']

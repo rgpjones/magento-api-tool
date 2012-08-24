@@ -2,13 +2,13 @@
 require_once 'RemoteService.php';
 
 try {
-    if (!isset($argv[1])) {
+    $service = new RemoteService();
+
+    if (is_null($service->arg(1))) {
         die("Please supply CSV file with products to import");
     }
 
-    $file = $argv[1];
-
-    $service = new RemoteService();
+    $file = $service->arg(1);
 
     $fh = fopen($file, 'r');
 
