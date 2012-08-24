@@ -17,17 +17,17 @@ class RemoteService
 
         echo "Using service configuration from '{$this->_confFile}'\n";
 
-        $conf = parse_ini_file($this->_confFile);
+        $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
 
-        $this->_service = new SoapClient($conf['addr'], array('connection_timeout' => 300, 'cache_wsdl' => WSDL_CACHE_NONE));
-        $this->_session = ($conf['wsi_compliance'])
-            ? $this->_service->login(array('username' => $conf['user'], 'apiKey' => $conf['pass']))
-            : $this->_service->login($conf['user'], $conf['pass']);
+        $this->_service = new SoapClient($this->_conf['addr'], array('connection_timeout' => 300, 'cache_wsdl' => WSDL_CACHE_NONE));
+        $this->_session = ($this->_conf['wsi_compliance'])
+            ? $this->_service->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
+            : $this->_service->login($this->_conf['user'], $this->_conf['pass']);
     }
 
     public function __call($func, $args)
     {
-        if (self::WSI_COMPLIANCE) {
+        if ($this->_conf['wsi_compliance']) {
             $args[0]['sessionId'] = $this->_session->result;
         } else {
             $args = array_values($args[0]);

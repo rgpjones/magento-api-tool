@@ -21,21 +21,13 @@ try {
 
     $productId = $service->catalogProductCreate(array(
         'type' => 'simple',
-        'set'  => 10, // attribute set ID
+        'set'  => 4, // attribute set ID
         'sku'  => $sku,
         'productData' => $newProductData
     ));
 
     echo "Product ID: " . $productId . "\n";
 
-    $additionalData = array('price' => '5.99'); // Overwrite the price
-
-    $result = $service->catalogProductUpdate(array(
-        'product' => $productId,
-        'productData' => $additionalData,
-    ));
-
-    print_r($result);
 } catch (SoapFault $e) {
     echo "Exception '" . get_class($e) . "':\n";
     print_r($e);
