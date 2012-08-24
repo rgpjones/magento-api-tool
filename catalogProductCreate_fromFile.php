@@ -14,6 +14,9 @@ try {
 
     $headers = fgetcsv($fh);
 
+    $tree = $service->catalogCategoryTree(array());
+    $categories = flattenTree($tree->children);
+
     while (false !== ($row = fgetcsv($fh))) {
         $data = array_combine($headers, $row);
 
@@ -31,7 +34,7 @@ try {
         ), $data);
 
         $data['websites'] = explode(',', $data['websites']);
-        $data['category_ids'] = explode(',', $data['category_ids']);
+        $data['category_ids'] = $categories[$data['category']];
 
         $products = $service->catalogProductList(
             array('filters' => array(
@@ -62,4 +65,18 @@ try {
 } catch (SoapFault $e) {
     echo "Exception '" . get_class($e) . "':\n";
     print_r($e);
+}
+
+function flattenTree($tree)
+{
+    $flat = array();
+
+    foreach ($tree as $branch) {
+        $flat[$branch->name][] = $branch->category_id;
+        if (!empty($branch->children)) {
+            $flat = array_merge($flat, flattenTree($branch->children));
+        }
+    }
+
+    return $flat;
 }
