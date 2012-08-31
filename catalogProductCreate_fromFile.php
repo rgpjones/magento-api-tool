@@ -16,7 +16,6 @@ try {
 
     $tree = $service->catalogCategoryTree(array());
     $categories = flattenTree($tree->children);
-
     while (false !== ($row = fgetcsv($fh))) {
         $data = array_combine($headers, $row);
 
@@ -74,7 +73,7 @@ function flattenTree($tree)
     foreach ($tree as $branch) {
         $flat[$branch->name][] = $branch->category_id;
         if (!empty($branch->children)) {
-            $flat = array_merge($flat, flattenTree($branch->children));
+            $flat = array_merge_recursive($flat, flattenTree($branch->children));
         }
     }
 
