@@ -29,6 +29,11 @@ class RemoteService
             : $this->_service->login($this->_conf['user'], $this->_conf['pass']);
     }
 
+    public function __destruct()
+    {
+        `stty echo`;
+    }
+
     public function __call($func, $args)
     {
         if ($this->_conf['wsi_compliance']) {
@@ -69,6 +74,23 @@ class RemoteService
         -l            : List available SOAP commands
 USAGE;
         die($usage . "\n");
+    }
+
+    public function ask($question, $type)
+    {
+        if ($type == 'password') {
+            `stty -echo`;
+        }
+
+        echo $question . ': ';
+        $value = fgets(STDIN);
+
+        if ($type == 'password') {
+            `stty echo`;
+            echo "\n";
+        }
+
+        return trim($value);
     }
 
     public function getFunctions()
