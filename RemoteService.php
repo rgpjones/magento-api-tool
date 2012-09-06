@@ -23,7 +23,7 @@ class RemoteService
 
         $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
 
-        $this->_service = new SoapClient($this->_conf['addr'], array('connection_timeout' => 300, 'cache_wsdl' => WSDL_CACHE_NONE));
+        $this->_service = new SoapClient($this->_conf['addr'], array('connection_timeout' => 900));
         $this->_session = ($this->_conf['wsi_compliance'])
             ? $this->_service->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
             : $this->_service->login($this->_conf['user'], $this->_conf['pass']);
@@ -44,7 +44,11 @@ class RemoteService
     public function opt($id)
     {
         if (isset($this->_opts[$id])) {
-            return $this->_opts[$id];
+            if (is_string($this->_opts[$id])) {
+                return $this->_opts[$id];
+            } else {
+                return true;
+            }
         }
         return null;
     }

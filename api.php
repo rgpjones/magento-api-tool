@@ -5,7 +5,10 @@ try {
     $service = new RemoteService();
 
     if ($service->opt('l')) {
-        print_r($service->getFunctions());
+        $funcs = $service->getFunctions();
+        foreach ($funcs as $func) {
+            echo "{$func['function']}(" . implode(',', $func['args']) . ")\n";
+        }
         exit;
     }
 
