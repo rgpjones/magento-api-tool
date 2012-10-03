@@ -76,7 +76,7 @@ USAGE;
         die($usage . "\n");
     }
 
-    public function ask($question, $type)
+    public function ask($question, $type, $default = '')
     {
         if ($type == 'password') {
             `stty -echo`;
@@ -90,7 +90,13 @@ USAGE;
             echo "\n";
         }
 
-        return trim($value);
+        $value = trim($value);
+
+        if ($value === '' && $default !== '') {
+            $value = $default;
+        }
+
+        return $value;
     }
 
     public function getFunctions()
