@@ -21,7 +21,7 @@ try {
             die('Invalid Quantity' . PHP_EOL);
         }
 
-        if ($qty > 0) {
+        if ($qty >= 0) {
             $cmItem = new stdClass;
             $cmItem->order_item_id = $item->item_id;
             $cmItem->qty = $qty;
@@ -38,11 +38,13 @@ try {
         $shipping = (float) $service->ask("Refund Shipping £[{$order->shipping_amount}]", 'text', $order->shipping_amount);
     }
 
+    $refund = (float) $service->ask("Goodwill Refund £0.00", 'text', 0);
+
     $data = new stdClass;
     $data->qtys = $items;
     $data->shipping_amount = $shipping;
     $data->adjustment_negative = 0; // "Penalty" amount
-    $data->adjustment_positive = 0; // "Good will gesture" amount
+    $data->adjustment_positive = $refund; // "Good will gesture" amount
 
     $result = $service->salesOrderCreditmemoCreate(array(
         'creditmemoIncrementId'     => $orderIncrementId,
