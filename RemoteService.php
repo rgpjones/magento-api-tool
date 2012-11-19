@@ -37,9 +37,12 @@ class RemoteService
     public function __call($func, $args)
     {
         if ($this->_conf['wsi_compliance']) {
+            if (!isset($args[0])) {
+                $args[0] = array();
+            }
             $args[0]['sessionId'] = $this->_session->result;
         } else {
-            $args = array_values($args[0]);
+            $args = empty($args) ? array() : array_values($args[0]);
             array_unshift($args, $this->_session);
         }
 
