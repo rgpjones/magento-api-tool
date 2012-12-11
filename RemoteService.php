@@ -1,6 +1,8 @@
 <?php
 class RemoteService
 {
+    const CONN_TIMEOUT = 300;
+
     protected $_service;
 
     protected $_session;
@@ -15,15 +17,19 @@ class RemoteService
 
     protected $_args = array();
 
+    protected $_echo = true;
+
     public function __construct()
     {
+        ini_set('default_socket_timeout', self::CONN_TIMEOUT);
+
         $this->parseOpts();
 
         echo "Using service configuration from '{$this->_confFile}'\n";
 
         $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
 
-        $this->_service = new SoapClient($this->_conf['addr'], array('connection_timeout' => 900));
+        $this->_service = new SoapClient($this->_conf['addr'], array('connection_timeout' => self::CONN_TIMEOUT));
         $this->_session = ($this->_conf['wsi_compliance'])
             ? $this->_service->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
             : $this->_service->login($this->_conf['user'], $this->_conf['pass']);
@@ -31,7 +37,9 @@ class RemoteService
 
     public function __destruct()
     {
-        `stty echo`;
+        if (!$this->_echo) {
+            `stty echo`;
+        }
     }
 
     public function __call($func, $args)
@@ -47,6 +55,24 @@ class RemoteService
         }
 
         return call_user_func_array(array($this->_service, $func), $args);
+    }
+
+    public function execute()
+    {
+        if ($this->opt('l')) {
+            $funcs = $this->getFunctions();
+            foreach ($funcs as $func) {
+                echo "{$func['function']}(" . implode(',', $func['args']) . ")\n";
+            }
+            exit;
+        }
+
+        if ($this->opt('c')) {
+            file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . '.apid', "conf = " . $this->opt('c') . "\n");
+            exit;
+        }
+
+        echo "No call\n";
     }
 
     public function opt($id)
@@ -82,6 +108,7 @@ USAGE;
     public function ask($question, $type, $default = '')
     {
         if ($type == 'password') {
+            $this->_echo = false;
             `stty -echo`;
         }
 
@@ -90,6 +117,7 @@ USAGE;
 
         if ($type == 'password') {
             `stty echo`;
+            $this->_echo = true;
             echo "\n";
         }
 
