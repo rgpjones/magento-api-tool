@@ -35,7 +35,8 @@ try {
 
     $shipping = 0;
     if ($order->shipping_amount > 0) {
-        $shipping = (float) $service->ask("Refund Shipping £[{$order->shipping_amount}]", 'text', $order->shipping_amount);
+        $shipping = $order->shipping_amount + $order->shipping_tax_amount;
+        $shipping = (float) $service->ask("Refund Shipping £[{$shipping}]", 'text', $shipping);
     }
 
     $refund = (float) $service->ask("Goodwill Refund £0.00", 'text', 0);
