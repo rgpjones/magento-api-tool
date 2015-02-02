@@ -1,5 +1,5 @@
 <?php
-require_once 'RemoteService.php';
+require_once __DIR__ . '/../RemoteService.php';
 
 try {
     // Get a sales order information by Magento increment ID

@@ -1,5 +1,5 @@
 <?php
-require 'RemoteService.php';
+require_once __DIR__ . '/../RemoteService.php';
 
 try {
     $service = new RemoteService();

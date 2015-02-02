@@ -1,10 +1,11 @@
 <?php
-require 'RemoteService.php';
+require_once __DIR__ . '/../RemoteService.php';
 
 try {
-    // List customer addresses by customer ID
     $service = new RemoteService();
-    $result = $service->customerAddressInfo(array('addressId' => $argv[1]));
+
+    // Get a sales order list by the applied filters
+    $result = $service->catalogCategoryTree(array());
     print_r($result);
 } catch (SoapFault $e) {
     echo "Exception '" . get_class($e) ."':\n";
