@@ -1,19 +1,16 @@
 <?php
-require_once 'RemoteService.php';
+require_once __DIR__ . '/../RemoteService.php';
 
 try {
     $service = new RemoteService();
 
-    $filters  = array(); /*
-        // Get only processing orders
-        'filter' => array(
-            array('key' => 'status', 'value' => 'processing'),
-        ),
+    $filters  = array(
         // Get orders made today
+        'filter' => array(),
         'complex_filter' => array(
             array('key' => 'created_at', 'value' => array('key' => 'gteq', 'value' => date('Y-m-d', strtotime('-1 month'))))
         ),
-    ); */
+    );
 
     // Get a sales order list by the applied filters
     $result = $service->customerCustomerList(array('filters' => $filters));

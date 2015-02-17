@@ -18,4 +18,4 @@ Set the configuration file to use:
 
 Then use the appropriate script, e.g.:
 
-    php salesOrderList.php
+    php Command/salesOrderList.php

@@ -1,5 +1,5 @@
 <?php
-require_once 'RemoteService.php';
+require_once __DIR__ . '/../RemoteService.php';
 
 if (!isset($argv[1])) {
     die('Please provide order increment ID' . PHP_EOL);
