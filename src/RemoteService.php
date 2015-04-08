@@ -29,7 +29,12 @@ class RemoteService
 
         $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
 
-        $this->_service = new SoapClient($this->_conf['addr'], array('connection_timeout' => self::CONN_TIMEOUT));
+        $this->_service = new SoapClient($this->_conf['addr'],
+                array(
+                    'connection_timeout' => self::CONN_TIMEOUT,
+                    'verify_peer' => 0
+                )
+        );
         $this->_session = ($this->_conf['wsi_compliance'])
             ? $this->_service->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
             : $this->_service->login($this->_conf['user'], $this->_conf['pass']);
@@ -53,8 +58,11 @@ class RemoteService
             $args = empty($args) ? array() : array_values($args[0]);
             array_unshift($args, $this->_session);
         }
-
-        return call_user_func_array(array($this->_service, $func), $args);
+        $start = microtime(true);
+        $result = call_user_func_array(array($this->_service, $func), $args);
+        $end = microtime(true);
+        fwrite(STDERR, "Call {$func}: " . number_format($end - $start, 2) . "s\n");
+        return $result;
     }
 
     public function execute()

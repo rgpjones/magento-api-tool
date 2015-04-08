@@ -10,7 +10,7 @@ try {
     $comment = $service->arg(3);
 
     $result = $service->salesOrderInfo(array('orderIncrementId' => $orderId));
-    if ($result->status == $status) {
+    if ($result->result->status == $status) {
         die("Order {$orderId} is already in state '{$status}'\n");
     } else {
         $result = $service->salesOrderAddComment(array(
@@ -19,9 +19,9 @@ try {
             'comment' => $comment
         ));
         if ($result) {
-            die("Updated {$orderId} to status '{$status}'\n");
+            echo "Updated {$orderId} to status '{$status}'\n";
         } else {
-            die("Order {$orderId} failed to update status.\n");
+            echo "Order {$orderId} failed to update status.\n";
         }
     }
 } catch (SoapFault $e) {

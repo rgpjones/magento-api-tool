@@ -12,8 +12,23 @@ try {
 
     $order = $service->salesOrderInfo(array('orderIncrementId' => $orderIncrementId));
 
+    $invoice = $service->salesOrderInvoiceList(
+        [
+            'filters' => [
+                'filter' => [
+                    [
+                        'key' => 'order_id',
+                        'value' => $order->result->order_id
+                    ]
+                ]
+            ]
+        ]
+    );
+
+    $invoiceIncrementId = $invoice->result->complexObjectArray->increment_id;
+
     $items = array();
-    foreach ($order->items as $item) {
+    foreach ($order->result->items->complexObjectArray as $item) {
         echo "[{$item->sku}] {$item->name} £{$item->row_invoiced} - ";
         $qty = (int) $service->ask("Qty to Refund [{$item->qty_invoiced}]", 'text', $item->qty_invoiced);
 
@@ -26,6 +41,11 @@ try {
             $cmItem->order_item_id = $item->item_id;
             $cmItem->qty = $qty;
             $items[] = $cmItem;
+
+            $rrItem = new stdClass;
+            $rrItem->order_item_id = $item->item_id;
+            $rrItem->return_code = 1;
+            $rrs[] = $rrItem;
         }
     }
 
@@ -34,7 +54,7 @@ try {
     }
 
     $shipping = 0;
-    if ($order->shipping_amount > 0) {
+    if ($order->result->shipping_amount > 0) {
         $shipping = $order->shipping_amount + $order->shipping_tax_amount;
         $shipping = (float) $service->ask("Refund Shipping £[{$shipping}]", 'text', $shipping);
     }
@@ -46,9 +66,12 @@ try {
     $data->shipping_amount = $shipping;
     $data->adjustment_negative = 0; // "Penalty" amount
     $data->adjustment_positive = $refund; // "Good will gesture" amount
+    $data->invoice_increment_id = $invoiceIncrementId;
+    $data->return_to_stock = 1;
+    $data->item_reasons = $rrs;
 
     $result = $service->salesOrderCreditmemoCreate(array(
-        'creditmemoIncrementId'     => $orderIncrementId,
+        'orderIncrementId'          => $orderIncrementId,
         'creditmemoData'            => $data,
         'comment'                   => 'Test Refund',
         'notifyCustomer'            => 0,
@@ -56,7 +79,7 @@ try {
         'refundToStoreCreditAmount' => ''
     ));
 
-    print_r($result);
+    echo "Creditmemo created";
     echo PHP_EOL;
 } catch (SoapFault $e) {
     echo "Exception '" . get_class($e) . "':\n";

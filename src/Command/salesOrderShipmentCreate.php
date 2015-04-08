@@ -13,7 +13,7 @@ try {
     $order = $service->salesOrderInfo(array('orderIncrementId' => $orderIncrementId));
 
     $items = array();
-    foreach ($order->items as $item) {
+    foreach ($order->result->items->complexObjectArray as $item) {
         echo "[{$item->sku}] {$item->name} £{$item->row_invoiced} - ";
         $qty = (int) $service->ask("Qty to Ship [{$item->qty_invoiced}]", 'text', $item->qty_invoiced);
 
