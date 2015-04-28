@@ -29,11 +29,19 @@ class RemoteService
 
         $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
 
-        $this->_service = new SoapClient($this->_conf['addr'],
-                array(
-                    'connection_timeout' => self::CONN_TIMEOUT,
-                    'verify_peer' => 0
-                )
+        $context = stream_context_create();
+
+        $this->_service = new SoapClient(
+            $this->_conf['addr'],
+            [
+                'stream_context' => [
+                    'http' => ['user_agent' => 'PHPSoapClient'],
+                    'ssl' => ['verify_peer' => 0],
+                    'https' => ['user_agent' => 'PHPSoapClient']
+                ],
+                'connection_timeout' => self::CONN_TIMEOUT,
+                'cache_wsdl' => WSDL_CACHE_NONE
+            ]
         );
         $this->_session = ($this->_conf['wsi_compliance'])
             ? $this->_service->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
