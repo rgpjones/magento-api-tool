@@ -25,27 +25,26 @@ class RemoteService
 
         $this->parseOpts();
 
-        echo "Using service configuration from '{$this->_confFile}'\n";
+        fwrite(STDERR, "Using service configuration from '{$this->_confFile}'\n");
 
         $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
-
-        $context = stream_context_create();
 
         $this->_service = new SoapClient(
             $this->_conf['addr'],
             [
-                'stream_context' => [
+                'stream_context' => stream_context_create([
                     'http' => ['user_agent' => 'PHPSoapClient'],
                     'ssl' => ['verify_peer' => 0],
                     'https' => ['user_agent' => 'PHPSoapClient']
-                ],
+                ]),
                 'connection_timeout' => self::CONN_TIMEOUT,
+                'verify_peer' => 0,
                 'cache_wsdl' => WSDL_CACHE_NONE
             ]
         );
         $this->_session = ($this->_conf['wsi_compliance'])
-            ? $this->_service->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
-            : $this->_service->login($this->_conf['user'], $this->_conf['pass']);
+            ? $this->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
+            : $this->login($this->_conf['user'], $this->_conf['pass']);
     }
 
     public function __destruct()
@@ -57,14 +56,16 @@ class RemoteService
 
     public function __call($func, $args)
     {
-        if ($this->_conf['wsi_compliance']) {
-            if (!isset($args[0])) {
-                $args[0] = array();
+        if ($func !== 'login') {
+            if ($this->_conf['wsi_compliance']) {
+                if (!isset($args[0])) {
+                    $args[0] = array();
+                }
+                $args[0]['sessionId'] = $this->_session->result;
+            } else {
+                $args = empty($args) ? array() : array_values($args[0]);
+                array_unshift($args, $this->_session);
             }
-            $args[0]['sessionId'] = $this->_session->result;
-        } else {
-            $args = empty($args) ? array() : array_values($args[0]);
-            array_unshift($args, $this->_session);
         }
         $start = microtime(true);
         $result = call_user_func_array(array($this->_service, $func), $args);

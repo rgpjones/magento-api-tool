@@ -4,14 +4,16 @@ require_once __DIR__ . '/../RemoteService.php';
 try {
     $service = new RemoteService();
 
+    $status = $argv[1];
+
     $filters  = array(
         // Get only processing orders
         'filter' => array(
-            array('key' => 'status', 'value' => 'pending'),
+            array('key' => 'status', 'value' => $status),
         ),
         // Get orders made today
         'complex_filter' => array(
-            array('key' => 'created_at', 'value' => array('key' => 'gteq', 'value' => date('Y-m-d', strtotime('-6 month'))))
+            array('key' => 'created_at', 'value' => array('key' => 'gteq', 'value' => date('Y-m-d', strtotime('-1 week'))))
         ),
     );
 
