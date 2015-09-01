@@ -34,12 +34,14 @@ class RemoteService
             [
                 'stream_context' => stream_context_create([
                     'http' => ['user_agent' => 'PHPSoapClient'],
-                    'ssl' => ['verify_peer' => 0],
+                    'ssl' => ['verify_peer' => 0, 'verify_peer_name' => 0],
                     'https' => ['user_agent' => 'PHPSoapClient']
                 ]),
                 'connection_timeout' => self::CONN_TIMEOUT,
                 'verify_peer' => 0,
-                'cache_wsdl' => WSDL_CACHE_NONE
+                'cache_wsdl' => WSDL_CACHE_NONE,
+                'login' => array_key_exists('basic_auth_user', $this->_conf) ? $this->_conf['basic_auth_user'] : '',
+                'password' => array_key_exists('basic_auth_pw', $this->_conf) ? $this->_conf['basic_auth_pw'] : ''
             ]
         );
         $this->_session = ($this->_conf['wsi_compliance'])
