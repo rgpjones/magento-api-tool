@@ -20,7 +20,12 @@ try {
     }
 
     $result = $service->salesOrderInfo(array('orderIncrementId' => $orderId));
-    if ($result->result->status == $status) {
+
+    if (isset($result->result)) {
+        $result = $result->result;
+    }
+
+    if ($result->status == $status) {
         die("Order {$orderId} is already in state '{$status}'\n");
     } else {
         $result = $service->salesOrderAddComment(array(
