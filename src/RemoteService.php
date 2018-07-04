@@ -31,19 +31,13 @@ class RemoteService
 
         $this->_service = new SoapClient(
             $this->_conf['addr'],
-            [
-                'stream_context' => stream_context_create([
-                    'http' => ['user_agent' => 'PHPSoapClient'],
-                    'ssl' => ['verify_peer' => 0, 'verify_peer_name' => 0],
-                    'https' => ['user_agent' => 'PHPSoapClient']
-                ]),
-                'connection_timeout' => self::CONN_TIMEOUT,
-                'verify_peer' => 0,
-                'cache_wsdl' => WSDL_CACHE_NONE,
-                'login' => array_key_exists('basic_auth_user', $this->_conf) ? $this->_conf['basic_auth_user'] : '',
-                'password' => array_key_exists('basic_auth_pw', $this->_conf) ? $this->_conf['basic_auth_pw'] : ''
-            ]
+            $this->buildSoapParameters()
         );
+
+        if (!isset($this->_conf['pass'])) {
+            $this->_conf['pass'] = $this->requestPassword();
+        }
+
         $this->_session = ($this->_conf['wsi_compliance'])
             ? $this->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
             : $this->login($this->_conf['user'], $this->_conf['pass']);
@@ -168,6 +162,28 @@ USAGE;
         return $this->_funcs;
     }
 
+    protected function buildSoapParameters()
+    {
+        return array_merge(
+            [
+                /*
+                    'stream_context' => stream_context_create([
+                        'http' => ['user_agent' => 'PHPSoapClient'],
+                        'ssl' => ['verify_peer' => 1, 'verify_peer_name' => 0],
+                        'https' => ['user_agent' => 'PHPSoapClient']
+                    ]),
+                    */
+                'connection_timeout' => self::CONN_TIMEOUT,
+                'verify_peer' => 1,
+                'cache_wsdl' => WSDL_CACHE_NONE,
+                'login' => array_key_exists('basic_auth_user', $this->_conf) ? $this->_conf['basic_auth_user'] : '',
+                'password' => array_key_exists('basic_auth_pw', $this->_conf) ? $this->_conf['basic_auth_pw'] : ''
+            ],
+            array_key_exists('proxy_host', $this->_conf) ? ['proxy_host' => $this->_conf['proxy_host']] : [],
+            array_key_exists('proxy_port', $this->_conf) ? ['proxy_port' => $this->_conf['proxy_port']] : []
+        );
+    }
+
     protected function parseOpts()
     {
         global $argv;
@@ -204,5 +220,10 @@ USAGE;
         }
 
         return $confFile;
+    }
+
+    protected function requestPassword()
+    {
+        return $this->ask("API Password", 'password');
     }
 }
