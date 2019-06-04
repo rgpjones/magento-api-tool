@@ -1,4 +1,6 @@
 <?php
+namespace Rgpjones\MagentoApiTool\Service;
+
 class RemoteService
 {
     const CONN_TIMEOUT = 300;
@@ -29,7 +31,7 @@ class RemoteService
 
         $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
 
-        $this->_service = new SoapClient(
+        $this->_service = new \SoapClient(
             $this->_conf['addr'],
             $this->buildSoapParameters()
         );
@@ -81,7 +83,7 @@ class RemoteService
         }
 
         if ($this->opt('c')) {
-            file_put_contents(__DIR__ . DIRECTORY_SEPARATOR . '.apid', "conf = " . $this->opt('c') . "\n");
+            file_put_contents(__DIR__ . DIRECTORY_SEPARATOR, "conf = " . $this->opt('c') . "\n");
             exit;
         }
 
@@ -205,7 +207,7 @@ USAGE;
             : $this->getConfFromFile();
 
         if (is_null($conf)) {
-            throw new RunTimeException('Configuration file not found');
+            throw new \RunTimeException('Configuration file not found');
         }
         $this->_confFile = $conf;
     }

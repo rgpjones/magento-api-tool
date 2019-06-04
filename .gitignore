@@ -1,2 +1,6 @@
 .apid
+bin/
+!bin/mageapi
 conf/
+var/
+vendor/
