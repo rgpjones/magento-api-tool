@@ -10,9 +10,6 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class InfoCommand extends Command
 {
-    /**
-     * @var RemoteService
-     */
     private $service;
 
     public function __construct(RemoteService $service)

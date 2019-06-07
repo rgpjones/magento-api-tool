@@ -33,16 +33,23 @@ class ListCommand extends Command
     {
         $status = $input->getArgument('status');
 
-        $filters  = array(
-            // Get only processing orders
-            'filter' => array(
-                array('key' => 'status', 'value' => $status),
-            ),
-            // Get orders made today
-            'complex_filter' => array(
-                array('key' => 'created_at', 'value' => array('key' => 'gteq', 'value' => date('Y-m-d 08:00:00', strtotime('-8 day')))),
-            ),
-        );
+        $filters  = [
+            'filter' => [
+                [
+                    'key' => 'status',
+                    'value' => $status
+                ],
+            ],
+            'complex_filter' => [
+                [
+                    'key' => 'created_at',
+                    'value' => [
+                        'key' => 'gteq',
+                        'value' => date('Y-m-d 08:00:00', strtotime('-8 day'))
+                    ]
+                ],
+            ],
+        ];
 
         // Get a sales order list by the applied filters
         $result = $this->service->salesOrderList(

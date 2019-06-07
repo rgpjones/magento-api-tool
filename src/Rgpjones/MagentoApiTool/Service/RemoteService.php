@@ -23,26 +23,26 @@ class RemoteService
 
     public function __construct()
     {
-        ini_set('default_socket_timeout', self::CONN_TIMEOUT);
+//        ini_set('default_socket_timeout', self::CONN_TIMEOUT);
+//
+//        $this->parseOpts();
+//
+//        fwrite(STDERR, "Using service configuration from '{$this->_confFile}'\n");
+//
+//        $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
+//
+//        $this->_service = new \SoapClient(
+//            $this->_conf['addr'],
+//            $this->buildSoapParameters()
+//        );
 
-        $this->parseOpts();
+//        if (!isset($this->_conf['pass'])) {
+//            $this->_conf['pass'] = $this->requestPassword();
+//        }
 
-        fwrite(STDERR, "Using service configuration from '{$this->_confFile}'\n");
-
-        $this->_conf = array_merge($this->_conf, parse_ini_file($this->_confFile));
-
-        $this->_service = new \SoapClient(
-            $this->_conf['addr'],
-            $this->buildSoapParameters()
-        );
-
-        if (!isset($this->_conf['pass'])) {
-            $this->_conf['pass'] = $this->requestPassword();
-        }
-
-        $this->_session = ($this->_conf['wsi_compliance'])
-            ? $this->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
-            : $this->login($this->_conf['user'], $this->_conf['pass']);
+//        $this->_session = ($this->_conf['wsi_compliance'])
+//            ? $this->login(array('username' => $this->_conf['user'], 'apiKey' => $this->_conf['pass']))
+//            : $this->login($this->_conf['user'], $this->_conf['pass']);
     }
 
     public function __destruct()
@@ -216,10 +216,9 @@ USAGE;
     {
         $confFile = null;
 
-        $this->_conf = parse_ini_file(__DIR__ . '/.apid');
-        if (isset($this->_conf['conf'])) {
-            $confFile = realpath(__DIR__ . DIRECTORY_SEPARATOR . $this->_conf['conf']);
-        }
+        $this->_conf = parse_ini_file(__DIR__ . '/../../../var/.apid');
+        $file = sprintf('/../../../var/services/%s.ini', $this->_conf['conf']);
+        $confFile = realpath(__DIR__ . DIRECTORY_SEPARATOR . $file);
 
         return $confFile;
     }
